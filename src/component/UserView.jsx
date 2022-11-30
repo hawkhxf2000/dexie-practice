@@ -1,23 +1,35 @@
-import {db} from "../model/db";
+import {db,resetDatabase} from "../model/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import Table from "react-bootstrap/Table";
-import {Button} from "react-bootstrap";
+import {Button, Row, Col} from "react-bootstrap";
 import {useState} from "react";
 
 export function UserView() {
+    const [count,setCount] = useState(10);
 
-    let users = useLiveQuery(() => db.tb_user.toCollection().limit(5).toArray());
+    let maxCount = useLiveQuery(()=>db.tb_user.count());
+    console.log(maxCount);
+    let users = useLiveQuery(() => db.tb_user.toCollection().limit(count).toArray(),
+        [count]);
 
 
-    // function loadPage() {
-    //     setCount(count + 5);
-    //     setUsers(db.tb_user.toCollection().limit(count).toArray());
-    // }
+    function loadPage() {
+        setCount(count + 10);
+    }
 
     if (!users) return null;
 
     return (
         <div>
+            <Row className="justify-content-md-start">
+                <Col>
+                    <Button onClick={()=>resetDatabase()}>Reset Database</Button>
+                </Col>
+            </Row>
+
+            <br/>
+            <br/>
+
             <Table bordered striped hover>
                 <thead>
                 <tr>
@@ -40,7 +52,12 @@ export function UserView() {
                 }
                 </tbody>
             </Table>
-            <Button variant="link" >Load More</Button>
+            <Row className="justify-content-md-center">
+                <Col>
+                    <Button variant="link" hidden={count<maxCount?null:true} onClick={()=>loadPage()}>Load More</Button>
+                </Col>
+            </Row>
+
         </div>
     )
 }
