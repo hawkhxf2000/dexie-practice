@@ -5,7 +5,7 @@ export async function populate(){
     let userTemp;
     for(let i=0; i<100; i++){
         userTemp = {
-            name:Math.random().toString(36).slice(-6),
+            name:Math.random().toString(36).slice(-8),
             email: Math.random().toString(36).slice(-8)+"@gmail.com",
             age: Math.round(Math.random()*100)
         }
