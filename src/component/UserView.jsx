@@ -1,20 +1,31 @@
 import {db,resetDatabase} from "../model/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import Table from "react-bootstrap/Table";
+import {Form} from "react-bootstrap";
 import {Button, Row, Col} from "react-bootstrap";
 import {useState} from "react";
 
 export function UserView() {
     const [count,setCount] = useState(10);
+    const [searchText, setSearchText] = useState("");
 
     let maxCount = useLiveQuery(()=>db.tb_user.count());
-    console.log(maxCount);
-    let users = useLiveQuery(() => db.tb_user.toCollection().limit(count).toArray(),
-        [count]);
+    let users = useLiveQuery(() =>
+            db.tb_user.toCollection()
+                .filter(function (user){
+                    return (user.name.indexOf(searchText)!==-1) || (user.email.indexOf(searchText)!==-1)
+                })
+                .limit(count).toArray(),
+        [count,searchText]);
 
 
     function loadPage() {
         setCount(count + 10);
+    }
+
+    function handleChange(e){
+        setSearchText(e.target.value)
+        console.log(searchText);
     }
 
     if (!users) return null;
@@ -29,7 +40,12 @@ export function UserView() {
 
             <br/>
             <br/>
-
+            <Row>
+                <Col xs md={{span:3, offset:1}}>
+                    <Form.Control type="input" width={3} onChange={(e)=>handleChange(e)}/>
+                </Col>
+            </Row>
+            <br/>
             <Table bordered striped hover>
                 <thead>
                 <tr>
